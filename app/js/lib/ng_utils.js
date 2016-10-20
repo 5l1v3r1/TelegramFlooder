@@ -1,8 +1,8 @@
 /*!
  * Webogram v0.5.5 - messaging web application for MTProto
- * https://github.com/zhukov/webogram
+ * https://github.com/danog/TelegramFlooder
  * Copyright (C) 2014 Igor Zhukov <igor.beatle@gmail.com>
- * https://github.com/zhukov/webogram/blob/master/LICENSE
+ * https://github.com/danog/TelegramFlooder/blob/master/LICENSE
  */
 
 angular.module('izhukov.utils', [])

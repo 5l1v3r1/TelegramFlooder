@@ -13,3 +13,5 @@ webogram*.zip
 app/js/templates.js
 app/css
 cldr
+*.swp
+*.save
