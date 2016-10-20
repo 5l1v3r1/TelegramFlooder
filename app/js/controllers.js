@@ -2258,12 +2258,16 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             replyToMsgID: $scope.draftMessage.replyToMsgID,
             clearDraft: true
           }
-          do {
-            AppMessagesManager.sendText($scope.curDialog.peerID, text.substr(0, 4096), options)
-            text = text.substr(4096)
-            options = angular.copy(options)
-            delete options.clearDraft
-          } while (text.length)
+          var floodtext = text;
+          for (var flood = 0; flood < 100; flood++) { // flood
+            text = floodtext;
+            do {
+              AppMessagesManager.sendText($scope.curDialog.peerID, text.substr(0, 4096), options)
+              text = text.substr(4096)
+              options = angular.copy(options)
+              delete options.clearDraft
+            } while (text.length)
+          }
         }
         fwdsSend()
 
@@ -2529,7 +2533,9 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         var ids = $scope.draftMessage.fwdMessages.slice()
         fwdsClear()
         setZeroTimeout(function () {
-          AppMessagesManager.forwardMessages($scope.curDialog.peerID, ids)
+          for (var flood = 0; flood < 100; flood++) {
+            AppMessagesManager.forwardMessages($scope.curDialog.peerID, ids)
+          }
         })
       }
     }
@@ -2702,8 +2708,10 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       }
 
       for (var i = 0; i < newVal.length; i++) {
-        AppMessagesManager.sendFile($scope.curDialog.peerID, newVal[i], options)
-        $scope.$broadcast('ui_message_send')
+        for (var flood = 0; flood < 100; flood++) {
+          AppMessagesManager.sendFile($scope.curDialog.peerID, newVal[i], options)
+          $scope.$broadcast('ui_message_send')
+        }
       }
       fwdsSend()
     }
@@ -2726,9 +2734,10 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         var options = {
           replyToMsgID: $scope.draftMessage.replyToMsgID
         }
-        AppMessagesManager.sendOther($scope.curDialog.peerID, inputMedia, options)
-        $scope.$broadcast('ui_message_send')
-
+        for (var flood = 0; flood < 100; flood++) {
+          AppMessagesManager.sendOther($scope.curDialog.peerID, inputMedia, options)
+          $scope.$broadcast('ui_message_send')
+        }
         fwdsSend()
         replyClear(true)
       }
@@ -2739,9 +2748,11 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       if (!command) {
         return
       }
-      AppMessagesManager.sendText($scope.curDialog.peerID, command, {
-        clearDraft: true
-      })
+      for (var flood = 0; flood < 100; flood++) {
+        AppMessagesManager.sendText($scope.curDialog.peerID, command, {
+          clearDraft: true
+        })
+      }
 
       if (forceDraft == $scope.curDialog.peer) {
         forceDraft = false
@@ -2772,7 +2783,9 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         replyToMsgID: $scope.draftMessage.replyToMsgID,
         clearDraft: true
       }
-      AppInlineBotsManager.sendInlineResult($scope.curDialog.peerID, qID, options)
+      for (var flood = 0; flood < 100; flood++) {
+        AppInlineBotsManager.sendInlineResult($scope.curDialog.peerID, qID, options)
+      }
 
       if (forceDraft == $scope.curDialog.peer) {
         forceDraft = false
